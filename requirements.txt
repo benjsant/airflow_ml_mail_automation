@@ -1,0 +1,8 @@
+apache-airflow[postgres]
+dvc[gs]
+flask
+scikit-learn
+scipy
+pandas
+numpy
+apache-airflow-providers-fab
