@@ -6,3 +6,4 @@ scipy
 pandas
 numpy
 apache-airflow-providers-fab
+python-dotenv
