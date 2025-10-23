@@ -1,6 +1,7 @@
 # File: dags/airflow_lab2_dag.py
 from __future__ import annotations
 import pendulum
+import requests
 from airflow import DAG
 from airflow.models import Variable
 from airflow.utils.email import send_email_smtp
@@ -24,10 +25,13 @@ def on_success_callback(context):
     <p>Logical Date: {context['logical_date']}</p>
     """
     send_email_smtp(
-        to=Variable.get("airflow_email_recipient", default_var="your_email@example.com"),
+        to=Variable.get("airflow_email_recipient", default_var="test@example.com"),
         subject=subject,
         html_content=html_content,
+        mailhost="localhost",
+        port=1025,
     )
+
 
 def on_failure_callback(context):
     subject = f"DAG {context['dag'].dag_id} Failed!"
@@ -39,10 +43,35 @@ def on_failure_callback(context):
     <p>Log URL: {context['task_instance'].log_url}</p>
     """
     send_email_smtp(
-        to=Variable.get("airflow_email_recipient", default_var="your_email@example.com"),
+        to=Variable.get("airflow_email_recipient", default_var="test@example.com"),
         subject=subject,
         html_content=html_content,
+        mailhost="localhost",
+        port=1025,
     )
+
+
+# ---------- Flask notification ----------
+def notify_flask():
+    """Notify the Flask API that the DAG has finished running."""
+    flask_url = "http://localhost:5555/health"
+    try:
+        response = requests.get(flask_url, timeout=5)
+        print(f"✅ Flask API responded with: {response.text}")
+    except Exception as e:
+        print(f"❌ Could not contact Flask API: {e}")
+
+
+# ---------- Task to test failure ----------
+def test_task_failure():
+    """
+    Task to force failure if Airflow Variable `force_failure` is set to "true".
+    """
+    force_fail = Variable.get("force_failure", default_var="false")
+    if force_fail.lower() == "true":
+        raise RuntimeError("💥 Forced failure for testing!")
+    print("✅ Test task succeeded normally.")
+
 
 # ---------- Default args ----------
 default_args = {
@@ -50,17 +79,19 @@ default_args = {
     "retries": 0,
 }
 
+
 # ---------- DAG ----------
 dag = DAG(
     dag_id="Airflow_Lab2",
     default_args=default_args,
-    description="Airflow-Lab2 ML DAG",
+    description="Airflow-Lab2 ML DAG with Flask integration",
     schedule="@daily",
     catchup=False,
     max_active_runs=1,
     on_success_callback=on_success_callback,
     on_failure_callback=on_failure_callback,
 )
+
 
 # ---------- Tasks ----------
 load_data_task = PythonOperator(
@@ -97,6 +128,19 @@ evaluate_model_task = PythonOperator(
     dag=dag,
 )
 
+# Task pour tester failure
+test_failure_task = PythonOperator(
+    task_id="test_failure_task",
+    python_callable=test_task_failure,
+    dag=dag,
+)
+
+notify_flask_task = PythonOperator(
+    task_id="notify_flask_task",
+    python_callable=notify_flask,
+    dag=dag,
+)
+
 # ---------- Dependencies ----------
 load_data_task >> data_preprocessing_task >> separate_data_outputs_task
-separate_data_outputs_task >> build_model_task >> evaluate_model_task
+separate_data_outputs_task >> build_model_task >> evaluate_model_task >> test_failure_task >> notify_flask_task

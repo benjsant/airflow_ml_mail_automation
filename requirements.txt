@@ -1,4 +1,4 @@
-apache-airflow[postgres]
+apache-airflow
 dvc[gs]
 flask
 scikit-learn
@@ -7,3 +7,4 @@ pandas
 numpy
 apache-airflow-providers-fab
 python-dotenv
+graphviz
