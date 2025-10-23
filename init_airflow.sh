@@ -1,5 +1,5 @@
 #!/bin/bash
-# dev_setup.sh - Install MailCatcher and initialize Airflow (dev standalone)
+# init_airflow.sh - Install MailCatcher and initialize Airflow (dev standalone)
 
 set -e  # exit on first error
 
@@ -29,9 +29,6 @@ pip install -r requirements.txt
 
 # Set AIRFLOW_HOME
 export AIRFLOW_HOME=$(pwd)/airflow
-
-# Initialize Airflow database
-airflow db init
 
 # Import Airflow variables if file exists
 if [ -f "dags/data/variables.json" ]; then

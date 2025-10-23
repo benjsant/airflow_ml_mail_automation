@@ -1,4 +1,4 @@
-# File: dags/airflow_lab2_dag.py
+# File: dags/main.py
 from __future__ import annotations
 import pendulum
 import requests
