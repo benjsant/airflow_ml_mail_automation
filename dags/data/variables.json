@@ -1,0 +1,4 @@
+{
+  "airflow_email_recipient": "airflow@test.com",
+  "force_failure": "false"
+}
