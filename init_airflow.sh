@@ -61,6 +61,7 @@ if [ -f "$AIRFLOW_HOME/airflow.cfg" ]; then
     crudini --set "$AIRFLOW_HOME/airflow.cfg" core base_log_folder "$(pwd)/airflow/logs"
     crudini --set "$AIRFLOW_HOME/airflow.cfg" core executor "LocalExecutor"
     crudini --set "$AIRFLOW_HOME/airflow.cfg" core simple_auth_manager_users "admin:admin,airflow:admin"
+    crudini --set "$AIRFLOW_HOME/airflow.cfg" core load_examples "False"
 
     # --- SMTP section (MailCatcher) ---
     crudini --set "$AIRFLOW_HOME/airflow.cfg" smtp smtp_host "localhost"
