@@ -56,12 +56,13 @@ fi
 if [ -f "$AIRFLOW_HOME/airflow.cfg" ]; then
     echo "🧩 Updating airflow.cfg with local parameters..."
     
-    # Core configuration
+        # --- Core section ---
     crudini --set "$AIRFLOW_HOME/airflow.cfg" core dags_folder "$(pwd)/dags"
     crudini --set "$AIRFLOW_HOME/airflow.cfg" core base_log_folder "$(pwd)/airflow/logs"
-    crudini --set "$AIRFLOW_HOME/airflow.cfg" core executor "SequentialExecutor"
+    crudini --set "$AIRFLOW_HOME/airflow.cfg" core executor "LocalExecutor"
+    crudini --set "$AIRFLOW_HOME/airflow.cfg" core simple_auth_manager_users "admin:admin,airflow:admin"
 
-    # SMTP configuration (MailCatcher)
+    # --- SMTP section (MailCatcher) ---
     crudini --set "$AIRFLOW_HOME/airflow.cfg" smtp smtp_host "localhost"
     crudini --set "$AIRFLOW_HOME/airflow.cfg" smtp smtp_port "1025"
     crudini --set "$AIRFLOW_HOME/airflow.cfg" smtp smtp_mail_from "airflow@example.com"
